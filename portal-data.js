@@ -1,11 +1,11 @@
-
 const FILE='./UKVI%20Data%202020-2026%20Q2.xlsx',MIN=30;
 const CFG={overall:{label:'Overall Study Visa',sub:'All study visa subtypes, including main applicants and dependants.',app:['Applied'],out:['Outcomes']},sponsored:{label:'Sponsored Study Only',sub:'Sponsored study / student visa applications and outcomes for main applicants only.',app:['Sponsored Applied'],out:['Sponsored Outcomes','Sponsored study']}};
 const C={a:'#2f80c0',d:'#64748b',i:'#15836f',r:'#c0392b',w:'#a16207',g:'#e5eaf0'};
 let wb,scope='sponsored',A=[],O=[],Y=[],N=[],SEL=[],V={},CH={};
-document.addEventListener('click',e=>{if(countryBox&&!countryBox.contains(e.target))closeCountryMenu()});
+function showError(m){const box=document.getElementById('errorBox');if(box){box.style.display='block';box.textContent='Error: '+m;}else{console.error(m)}}
+document.addEventListener('click',e=>{if(window.countryBox&&!window.countryBox.contains(e.target))closeCountryMenu()});
 addEventListener('resize',()=>Object.values(CH).forEach(c=>c&&c.resize()));
-async function load(){try{let r=await fetch(FILE,{cache:'force-cache'});if(!r.ok)throw Error('Could not load workbook');wb=XLSX.read(await r.arrayBuffer(),{type:'array'});loadScope(scope);applyFilters();set('guideLoaded',new Date().toLocaleString('en-GB'))}catch(e){err(e.message||e)}finally{loader.style.display='none'}}
+async function load(){try{let r=await fetch(FILE,{cache:'force-cache'});if(!r.ok)throw Error('Could not load workbook');wb=XLSX.read(await r.arrayBuffer(),{type:'array'});loadScope(scope);applyFilters();set('guideLoaded',new Date().toLocaleString('en-GB'))}catch(e){showError(e.message||e)}finally{const l=document.getElementById('loader');if(l)l.style.display='none'}}
 function loadScope(s){scope=s;let c=CFG[s];A=readA(c.app);O=readO(c.out);Y=u(A.map(x=>x.y).concat(O.map(x=>x.y))).sort((a,b)=>a-b);N=u(A.map(x=>x.n).concat(O.map(x=>x.n))).sort((a,b)=>a.localeCompare(b));set('reportTitle',c.label);set('topScope',c.label);set('reportSubtitle',c.sub);document.querySelectorAll('.scope-btn').forEach(b=>b.classList.toggle('active',b.dataset.scope==s));fill(yearFrom,Y,Y[0]);fill(yearTo,Y,Y.at(-1));fill(compareYear,Y,Y.at(-1));countryOptions.innerHTML=N.map(n=>`<option value="${e(n)}"></option>`).join('');renderCountryMenu();set('guideLatest',lastPeriod()||'-');renderCompareSlots()}
 function setScope(s){SEL=[];loadScope(s);applyFilters()}
 function sh(n){return wb.Sheets[n]||wb.Sheets[wb.SheetNames.find(x=>cl(x).toLowerCase()==cl(n).toLowerCase())]}
@@ -23,3 +23,4 @@ function mv(row,n,x){let cy=Math.max(...u(A.concat(O).filter(r=>r.n==n&&r.y>=x.y
 function lab(a,g,r){let up=a>.05,down=a<-.05,gd=g>.05,gb=g<-.05,better=r<-.005,worse=r>.005;if(up&&gd&&better)return['↗ Positive Growth','text-good'];if(up&&better)return['↗ Higher Volume, Better Outcome','text-good'];if(down&&better)return['↘ Lower Volume, Better Outcome','text-good'];if(up&&worse)return['⚠ Higher Volume, Higher Risk','text-warn'];if((down&&worse)||(gb&&worse))return['↓ Declining','text-risk'];return['→ Stable / Mixed','text-warn']}
 function periods(a,o){let m={};a.concat(o).forEach(r=>m[`${r.y}|${r.q}`]={y:r.y,q:r.q,label:`${r.y} ${r.q}`});return Object.values(m).sort((a,b)=>a.y-b.y||Number(a.q[1])-Number(b.q[1]))}
 function snap(a,o){let p=periods(a,o);if(!p.length)return null;let c=p.at(-1),pr={y:c.y-1,q:c.q,label:`${c.y-1} ${c.q}`};return{cur:c,prev:pr,c:outs(o.filter(r=>r.y==c.y&&r.q==c.q)),p:outs(o.filter(r=>r.y==pr.y&&r.q==pr.q))}}
+function lastPeriod(){let p=periods(A,O);return p.length?p.at(-1).label:null}
