@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>UKVI Study Visa Reporting</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=20260827-sheets-api">
+  <link rel="stylesheet" href="style.css?v=20260827-polished">
 </head>
 <body>
   <div class="loading" id="loading"><span></span>Connecting to Google Sheets...</div>
@@ -14,9 +14,9 @@
     <button class="menu-btn" id="menuBtn" type="button" aria-label="Toggle navigation">☰</button>
     <div class="product-title">
       <strong>UKVI Study Visa Reporting</strong>
-      <small id="connectionLabel">Google Sheets data source</small>
+      <small id="connectionLabel">Connected to Google Sheets</small>
     </div>
-    <div class="top-meta" id="topMeta">Not connected</div>
+    <div class="top-meta" id="topMeta">UKVI Student Visa Statistics</div>
   </header>
 
   <div class="layout" id="layout">
@@ -35,13 +35,14 @@
     <main class="content">
       <section class="control-panel">
         <div class="heading-block">
-          <p class="eyebrow">Reporting workspace</p>
-          <h1 id="reportTitle">Sponsored Study Only</h1>
-          <p id="reportSubtitle">Main applicant sponsored study applications and outcomes.</p>
-        </div>
-        <div class="scope-switch" aria-label="Dataset scope">
-          <button class="scope active" data-scope="sponsored">Sponsored Study Only</button>
-          <button class="scope" data-scope="overall">Overall Study Visa</button>
+          <div>
+            <h1 id="reportTitle">UKVI Student Visa Statistics</h1>
+            <p id="reportSubtitle">Main applicant sponsored study applications and outcomes.</p>
+          </div>
+          <div class="scope-switch" aria-label="Dataset scope">
+            <button class="scope active" data-scope="sponsored">Sponsored Study Only</button>
+            <button class="scope" data-scope="overall">Overall Study Visa</button>
+          </div>
         </div>
         <div class="filters">
           <label><span>Year from</span><select id="yearFrom"></select></label>
@@ -134,7 +135,8 @@
     </main>
   </div>
 
-  <script src="config.js?v=20260827-sheets-api"></script>
+  <script src="config.js?v=20260827-polished"></script>
   <script src="app.js?v=20260827-sheets-api"></script>
+  <script src="polish.js?v=20260827-polished"></script>
 </body>
 </html>
