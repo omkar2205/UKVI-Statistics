@@ -1,6 +1,6 @@
 window.UKVI_CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbxsY-uSRWOF6LoB7gurnEov6U-JqPo2dDUc_IHkBnNLZRCLDKsfT3sGz7IqN_nIQh-2Zg/exec',
-  BUILD: '20260827-jsonp-data'
+  BUILD: '20260827-data-fix-v2'
 };
 
 // GitHub Pages and Apps Script are on different origins. Apps Script's
@@ -19,13 +19,13 @@ window.UKVI_CONFIG = {
     return new Promise((resolve, reject) => {
       const callbackName = '__ukviJsonp_' + Date.now() + '_' + Math.random().toString(36).slice(2);
       const script = document.createElement('script');
-      const signal = init && init.signal;
       let finished = false;
+      let timeoutId = null;
 
       const cleanup = () => {
         if (finished) return;
         finished = true;
-        if (signal) signal.removeEventListener('abort', onAbort);
+        if (timeoutId) clearTimeout(timeoutId);
         if (script.parentNode) script.parentNode.removeChild(script);
         try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
       };
@@ -34,18 +34,6 @@ window.UKVI_CONFIG = {
         cleanup();
         reject(new TypeError(message));
       };
-
-      const onAbort = () => {
-        cleanup();
-        const error = new Error('The operation was aborted.');
-        error.name = 'AbortError';
-        reject(error);
-      };
-
-      if (signal) {
-        if (signal.aborted) return onAbort();
-        signal.addEventListener('abort', onAbort, { once: true });
-      }
 
       window[callbackName] = data => {
         cleanup();
@@ -60,6 +48,11 @@ window.UKVI_CONFIG = {
       script.async = true;
       script.onerror = () => fail('Apps Script data request failed.');
       script.src = requestUrl + (requestUrl.includes('?') ? '&' : '?') + 'callback=' + encodeURIComponent(callbackName);
+
+      // Ignore app.js's shorter AbortController timeout for Apps Script requests.
+      // Apps Script cold starts and large Sheet reads can occasionally take longer.
+      timeoutId = setTimeout(() => fail('Apps Script data request timed out after 90 seconds.'), 90000);
+
       document.head.appendChild(script);
     });
   };
