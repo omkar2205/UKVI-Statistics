@@ -36,18 +36,27 @@ function init(){
 }
 
 async function loadData(){
-  if(!API_URL){setupNotice();$('loading').style.display='none';return;}
+  if(!API_URL){setupNotice();const l=$('loading');if(l)l.style.display='none';return;}
+  const controller=typeof AbortController!=='undefined'?new AbortController():null;
+  const timeoutId=controller?setTimeout(()=>controller.abort(),25000):null;
   try{
     const url=API_URL+(API_URL.includes('?')?'&':'?')+'v='+encodeURIComponent(BUILD)+'&t='+Date.now();
-    const res=await fetch(url,{cache:'no-store'});
+    const options={cache:'no-store'};
+    if(controller)options.signal=controller.signal;
+    const res=await fetch(url,options);
     if(!res.ok)throw new Error('Apps Script returned HTTP '+res.status);
     const data=await res.json();
     if(data.status&&data.status!=='ok')throw new Error(data.message||'Apps Script returned an error');
     rawData=data;
     const notice=$('notice'); if(notice){notice.hidden=true;notice.className='notice';notice.textContent='';}
     setScope(scope);
-  }catch(err){setNotice('Data connection failed: '+(err.message||err),'error');}
-  finally{$('loading').style.display='none';}
+  }catch(err){
+    const timedOut=err&&err.name==='AbortError';
+    setNotice(timedOut?'Data connection timed out. Please refresh the dashboard.':'Data connection failed: '+(err.message||err),'error');
+  }finally{
+    if(timeoutId)clearTimeout(timeoutId);
+    const l=$('loading');if(l)l.style.display='none';
+  }
 }
 function setupNotice(){setNotice('Apps Script is not connected yet. The dashboard needs the deployed Apps Script Web App URL in config.js.','error');setText('summaryLine','Waiting for Apps Script Web App URL.');}
 function setNotice(text,kind){const n=$('notice');if(!n)return;n.hidden=false;n.className='notice '+(kind||'');n.textContent=text;}
