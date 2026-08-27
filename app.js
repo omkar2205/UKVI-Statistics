@@ -1,3 +1,3 @@
-const APP_BUILD='20260827-errfix';
-function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src+'?v='+APP_BUILD;s.async=false;s.onload=res;s.onerror=()=>rej(new Error('Could not load '+src));document.body.appendChild(s)})}
-loadScript('portal-ui.js').then(()=>loadScript('portal-data.js')).then(()=>loadScript('portal-render.js')).then(()=>load()).catch(e=>{const b=document.getElementById('errorBox');if(b){b.style.display='block';b.textContent='Error: '+e.message}const l=document.getElementById('loader');if(l)l.style.display='none'});
+const APP_BUILD='20260827-reporting2';
+function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src+'?v='+APP_BUILD;script.async=false;script.onload=resolve;script.onerror=()=>reject(new Error('Could not load '+src));document.body.appendChild(script);});}
+loadScript('portal-ui.js').then(()=>loadScript('portal-data.js')).then(()=>loadScript('portal-render.js')).then(()=>load()).catch(error=>{const box=document.getElementById('errorBox');if(box){box.style.display='block';box.textContent='Error: '+(error.message||error);}const loader=document.getElementById('loader');if(loader)loader.style.display='none';});
