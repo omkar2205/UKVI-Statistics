@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UKVI Study Visa Insights</title>
+  <title>UKVI Study Visa Reporting</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="style.css">
@@ -11,158 +11,165 @@
 <body>
   <div class="loader" id="loader"><div><span class="spinner"></span>Loading UKVI data...</div></div>
 
-  <header class="portal-top">
-    <div class="top-inner">
-      <a class="brand" href="#home" onclick="showSection('home')">
-        <span class="brand-mark">UK</span>
-        <span><b>UKVI Study Visa</b><small>Insights</small></span>
-      </a>
-      <nav class="top-nav" aria-label="Portal sections">
-        <button class="nav-pill active" data-section="home" onclick="showSection('home')">Briefing</button>
-        <button class="nav-pill" data-section="trends" onclick="showSection('trends')">Trends</button>
-        <button class="nav-pill" data-section="countries" onclick="showSection('countries')">Countries</button>
-        <button class="nav-pill" data-section="compare" onclick="showSection('compare')">Compare</button>
-        <button class="nav-pill" data-section="signals" onclick="showSection('signals')">Signals</button>
-        <button class="nav-pill" data-section="guide" onclick="showSection('guide')">Data Guide</button>
-      </nav>
+  <header class="topbar">
+    <div class="top-title">
+      <strong>UKVI Study Visa Reporting</strong>
+      <span id="topScope">Sponsored Study Only</span>
+    </div>
+    <div class="top-actions">
+      <button class="top-tab active" data-target="overview" onclick="showSection('overview')">Overview</button>
+      <button class="top-tab" data-target="applications" onclick="showSection('applications')">Applications</button>
+      <button class="top-tab" data-target="outcomes" onclick="showSection('outcomes')">Outcomes</button>
+      <button class="top-tab" data-target="grants" onclick="showSection('grants')">Grants</button>
+      <button class="top-tab" data-target="refusals" onclick="showSection('refusals')">Refusals</button>
+      <button class="top-tab" data-target="countries" onclick="showSection('countries')">Countries</button>
+      <button class="top-tab" data-target="compare" onclick="showSection('compare')">Compare</button>
+      <button class="top-tab" data-target="guide" onclick="showSection('guide')">Data Guide</button>
     </div>
   </header>
 
-  <main class="portal-shell">
-    <section class="hero" id="home">
-      <div class="hero-main">
-        <div class="eyebrow">Briefing</div>
-        <h1>Sponsored study visa trends and outcome signals</h1>
-        <p class="lead">Explore application volumes, visa outcomes, country movement and the latest Q2 2026 signals.</p>
-        <div class="meta-row">
-          <span><b>Source</b> UKVI Data 2020-2026 Q2.xlsx</span>
-          <span><b>Latest</b> <span id="latestPeriod">-</span></span>
-          <span><b>Loaded</b> <span id="loadedAt">-</span></span>
+  <div class="shell">
+    <aside class="sidebar">
+      <button class="side-link active" data-target="overview" onclick="showSection('overview')">Overview</button>
+      <button class="side-link" data-target="applications" onclick="showSection('applications')">Applications</button>
+      <button class="side-link" data-target="outcomes" onclick="showSection('outcomes')">Outcomes</button>
+      <button class="side-link" data-target="grants" onclick="showSection('grants')">Grants</button>
+      <button class="side-link" data-target="refusals" onclick="showSection('refusals')">Refusals</button>
+      <button class="side-link" data-target="countries" onclick="showSection('countries')">Countries</button>
+      <button class="side-link" data-target="compare" onclick="showSection('compare')">Compare</button>
+      <button class="side-link" data-target="guide" onclick="showSection('guide')">Data Guide</button>
+    </aside>
+
+    <main class="main">
+      <div class="report-head">
+        <div>
+          <h1 id="reportTitle">Sponsored Study Only</h1>
+          <p id="reportSubtitle">Main applicant sponsored study applications and outcomes.</p>
+        </div>
+        <div class="scope-switch" aria-label="Dataset view">
+          <button class="scope-btn" data-scope="overall" onclick="setScope('overall')">Overall Study Visa</button>
+          <button class="scope-btn active" data-scope="sponsored" onclick="setScope('sponsored')">Sponsored Study Only</button>
         </div>
       </div>
-      <aside class="hero-card">
-        <span>Refusal rate</span>
-        <strong id="selectedRefusalRate">-</strong>
-        <small id="selectedScope">Current selection</small>
-      </aside>
-    </section>
 
-    <section class="filter-strip">
-      <div class="filter-grid">
-        <div class="field"><label>Year from</label><select id="yearFrom"></select></div>
-        <div class="field"><label>Year to</label><select id="yearTo"></select></div>
-        <div class="field"><label>Quarter</label><select id="quarter"><option>All</option><option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option></select></div>
-        <div class="field country-field" id="countryMulti">
-          <label>Country / nationality</label>
-          <button class="select-button" type="button" onclick="toggleCountryMenu(event)"><span id="countryLabel">All countries</span><span>▾</span></button>
-          <div class="country-menu" id="countryMenu">
-            <input id="countrySearch" placeholder="Search country..." oninput="renderCountryMenu()">
-            <div class="country-tools">
-              <button type="button" onclick="selectVisibleCountries()">Select visible</button>
-              <button type="button" onclick="clearCountries()">Clear</button>
-              <button type="button" onclick="closeCountryMenu()">Done</button>
+      <section class="filters">
+        <div class="filter-row">
+          <div class="field"><label>Year from</label><select id="yearFrom"></select></div>
+          <div class="field"><label>Year to</label><select id="yearTo"></select></div>
+          <div class="field"><label>Quarter</label><select id="quarter"><option>All</option><option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option></select></div>
+          <div class="field country-field" id="countryBox">
+            <label>Country / nationality</label>
+            <button class="select-btn" type="button" onclick="toggleCountryMenu(event)"><span id="countryLabel">All countries</span><span>▾</span></button>
+            <div class="country-menu" id="countryMenu">
+              <input id="countrySearch" placeholder="Search country..." oninput="renderCountryMenu()">
+              <div class="country-tools">
+                <button type="button" onclick="selectVisibleCountries()">Select visible</button>
+                <button type="button" onclick="clearCountries()">Clear</button>
+                <button type="button" onclick="closeCountryMenu()">Done</button>
+              </div>
+              <div class="country-list" id="countryList"></div>
             </div>
-            <div class="country-list" id="countryList"></div>
+          </div>
+          <div class="filter-buttons">
+            <button class="btn" onclick="applyFilters()">Apply</button>
+            <button class="btn secondary" onclick="resetFilters()">Reset</button>
           </div>
         </div>
-        <div class="actions">
-          <button class="button primary" onclick="applyFilters()">Apply</button>
-          <button class="button soft" onclick="resetFilters()">Reset</button>
+        <div class="active-filter" id="activeFilterText">Current filters: All</div>
+      </section>
+
+      <div class="error" id="errorBox"></div>
+
+      <section class="section active" id="overview">
+        <div class="summary-line" id="summaryLine">Loading summary...</div>
+        <div class="kpi-grid" id="overviewKpis"></div>
+        <div class="movement-grid" id="movementCards"></div>
+        <div class="grid">
+          <article class="card wide"><div class="card-title"><h2>Applications and decisions trend</h2><p>Applications compared with issued/refused decisions.</p></div><div class="chart large" id="chartAnnual"></div></article>
+          <article class="card half"><div class="card-title"><h2>Refusal rate trend</h2></div><div class="chart" id="chartRefusalTrend"></div></article>
+          <article class="card half"><div class="card-title"><h2>Latest quarter refusal-rate change</h2><p>Slope view, same quarter previous year.</p></div><div class="chart" id="chartLatestSlope"></div></article>
         </div>
-      </div>
-      <div class="active-filter" id="activeFilterText">Current filters: All</div>
-    </section>
+      </section>
 
-    <div class="error" id="errorBox"></div>
+      <section class="section" id="applications">
+        <div class="kpi-grid" id="applicationKpis"></div>
+        <div class="grid">
+          <article class="card wide"><div class="card-title"><h2>Applications by quarter</h2></div><div class="chart large" id="chartQuarterApplications"></div></article>
+          <article class="card half"><div class="card-title"><h2>Applications by year</h2></div><div class="chart" id="chartYearApplications"></div></article>
+          <article class="card half"><div class="card-title"><h2>Top countries by applications</h2></div><div class="chart ranking" id="chartTopApplications"></div></article>
+        </div>
+      </section>
 
-    <section class="section active" data-section="home">
-      <div class="portal-grid intro-grid">
-        <article class="newsletter-card">
-          <div class="section-label">Briefing</div>
-          <h2 id="briefTitle">Loading Q2 study visa briefing...</h2>
-          <p id="briefIntro">Reading the workbook and preparing the latest view.</p>
-          <div class="brief-list" id="briefBullets"></div>
+      <section class="section" id="outcomes">
+        <div class="kpi-grid" id="outcomeKpis"></div>
+        <div class="grid">
+          <article class="card half"><div class="card-title"><h2>Issued / granted and refused by year</h2></div><div class="chart" id="chartOutcomeYear"></div></article>
+          <article class="card half"><div class="card-title"><h2>Outcome mix</h2></div><div class="chart" id="chartOutcomeMix"></div></article>
+          <article class="card wide"><div class="card-title"><h2>Quarterly issued vs refused</h2></div><div class="chart large" id="chartOutcomeQuarter"></div></article>
+        </div>
+      </section>
+
+      <section class="section" id="grants">
+        <div class="grid">
+          <article class="card wide"><div class="card-title"><h2>Issued / granted trend</h2></div><div class="chart large" id="chartGrantTrend"></div></article>
+          <article class="card half"><div class="card-title"><h2>Grant rate trend</h2></div><div class="chart" id="chartGrantRate"></div></article>
+          <article class="card half"><div class="card-title"><h2>Top countries by issued / granted outcomes</h2></div><div class="chart ranking" id="chartTopGrants"></div></article>
+        </div>
+      </section>
+
+      <section class="section" id="refusals">
+        <div class="grid">
+          <article class="card wide"><div class="card-title"><h2>Refusal trend</h2></div><div class="chart large" id="chartRefusalVolume"></div></article>
+          <article class="card half"><div class="card-title"><h2>Highest refusal rate countries</h2><p>Minimum decision base applied.</p></div><div class="chart ranking" id="chartHighRefusal"></div></article>
+          <article class="card half"><div class="card-title"><h2>Largest refusal-rate increases</h2><p>Latest comparable period only.</p></div><div class="chart ranking" id="chartRefusalIncrease"></div></article>
+        </div>
+      </section>
+
+      <section class="section" id="countries">
+        <div id="countryProfile" class="profile"></div>
+        <div class="grid">
+          <article class="card half"><div class="card-title"><h2>Highest refusal rate countries</h2></div><div class="chart ranking" id="chartCountryHigh"></div></article>
+          <article class="card half"><div class="card-title"><h2>Lowest refusal rate countries</h2></div><div class="chart ranking" id="chartCountryLow"></div></article>
+          <article class="card wide"><div class="card-title split"><div><h2>Country summary table</h2><p>Movement is shown as coloured text with arrows.</p></div><button class="btn small" onclick="exportCountryCsv()">Export CSV</button></div><div class="table-wrap" id="countryTable"></div></article>
+        </div>
+      </section>
+
+      <section class="section" id="compare">
+        <article class="card">
+          <div class="card-title"><h2>Compare countries</h2><p>Choose up to five countries and one metric.</p></div>
+          <div class="compare-controls">
+            <div class="field"><label>Mode</label><select id="compareMode" onchange="toggleCompareMode()"><option value="trend">Trend over time</option><option value="period">Selected period</option></select></div>
+            <div class="field compare-period"><label>Year</label><select id="compareYear"></select></div>
+            <div class="field compare-period"><label>Quarter</label><select id="compareQuarter"><option>All</option><option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option></select></div>
+            <div class="field compare-trend"><label>Trend period</label><select id="compareTrendPeriod"><option value="3">Last 3 years</option><option value="5" selected>Last 5 years</option><option value="all">All years</option></select></div>
+            <div class="field compare-trend"><label>Quarter basis</label><select id="compareTrendQuarter"><option value="All">All quarters</option><option value="Q1">Q1 only</option><option value="Q2">Q2 only</option><option value="Q3">Q3 only</option><option value="Q4">Q4 only</option></select></div>
+            <div class="field"><label>Metric</label><select id="compareMetric"><option value="applications">Applications</option><option value="decisions">Decisions considered</option><option value="issued">Issued / Granted</option><option value="refused">Refused</option><option value="grantRate">Grant Rate</option><option value="refusalRate" selected>Refusal Rate</option></select></div>
+          </div>
+          <datalist id="countryOptions"></datalist>
+          <div class="compare-slots" id="compareSlots"></div>
+          <div class="compare-actions">
+            <button class="btn secondary small" onclick="addCompareSlot()">+ Add country</button>
+            <button class="btn small" onclick="renderCompare()">Apply compare</button>
+            <button class="btn secondary small" onclick="resetCompare()">Reset</button>
+          </div>
         </article>
-        <aside class="release-card">
-          <div class="release-top"><span>Release note</span><b id="releasePeriod">-</b></div>
-          <p>Applications and outcomes are compared directionally. They are not matched applicant-level conversion records.</p>
-          <div class="mini-stat"><span>Latest comparison</span><b id="latestComparison">-</b></div>
-        </aside>
-      </div>
-
-      <div class="kpi-grid" id="kpiGrid"></div>
-      <div class="movement-grid" id="movementCards"></div>
-
-      <div class="portal-grid">
-        <article class="chart-card wide"><div class="card-title"><h2>Applications and decisions trend</h2><p>Annual view of application volume and decisions considered.</p></div><div class="chart tall" id="chartAnnualVolume"></div></article>
-        <article class="chart-card"><div class="card-title"><h2>Refusal rate trend</h2><p>How refusal rate moved over time.</p></div><div class="chart" id="chartRefusalTrend"></div></article>
-        <article class="chart-card"><div class="card-title"><h2>Latest quarter snapshot</h2><p>Latest quarter compared with the same quarter last year.</p></div><div class="chart" id="chartLatestSnapshot"></div></article>
-      </div>
-    </section>
-
-    <section class="section" data-section="trends">
-      <div class="section-heading"><span>Trends</span><h2>Applications and outcome movement over time</h2><p>Use these charts to understand volume, success and refusal patterns across years and quarters.</p></div>
-      <div class="portal-grid">
-        <article class="chart-card wide"><div class="card-title"><h2>Applications by quarter</h2><p>Quarter-level application volume.</p></div><div class="chart tall" id="chartQuarterApplications"></div></article>
-        <article class="chart-card"><div class="card-title"><h2>Issued and refused by year</h2></div><div class="chart" id="chartOutcomeYear"></div></article>
-        <article class="chart-card"><div class="card-title"><h2>Grant and refusal rates</h2></div><div class="chart" id="chartRateTrend"></div></article>
-        <article class="chart-card wide"><div class="card-title"><h2>Quarterly issued vs refused</h2></div><div class="chart tall" id="chartOutcomeQuarter"></div></article>
-      </div>
-    </section>
-
-    <section class="section" data-section="countries">
-      <div class="section-heading"><span>Countries</span><h2>Country-level overview</h2><p>Select one country in the filter for a profile view, or leave all countries selected for rankings.</p></div>
-      <div class="country-profile" id="countryProfile"></div>
-      <div class="portal-grid">
-        <article class="chart-card"><div class="card-title"><h2>Highest refusal rate countries</h2><p>Minimum decision base applied.</p></div><div class="chart ranking" id="chartHighRefusal"></div></article>
-        <article class="chart-card"><div class="card-title"><h2>Lowest refusal rate countries</h2><p>Minimum decision base applied.</p></div><div class="chart ranking" id="chartLowRefusal"></div></article>
-        <article class="chart-card wide"><div class="card-title split"><div><h2>Country summary table</h2><p>Applications, outcomes and movement indicators.</p></div><button class="button small" onclick="exportCountryCsv()">Export CSV</button></div><div class="table-wrap" id="countryTable"></div></article>
-      </div>
-    </section>
-
-    <section class="section" data-section="compare">
-      <div class="section-heading"><span>Compare</span><h2>Country comparison</h2><p>Choose up to five countries and a metric to compare selected-period values or longer trends.</p></div>
-      <article class="compare-panel">
-        <div class="compare-controls">
-          <div class="field"><label>Mode</label><select id="compareMode" onchange="toggleCompareMode()"><option value="trend">Trend over time</option><option value="period">Selected period</option></select></div>
-          <div class="field compare-period"><label>Year</label><select id="compareYear"></select></div>
-          <div class="field compare-period"><label>Quarter</label><select id="compareQuarter"><option>All</option><option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option></select></div>
-          <div class="field compare-trend"><label>Trend period</label><select id="compareTrendPeriod"><option value="3">Last 3 years</option><option value="5" selected>Last 5 years</option><option value="all">All years</option></select></div>
-          <div class="field compare-trend"><label>Quarter basis</label><select id="compareTrendQuarter"><option value="All">All quarters</option><option value="Q1">Q1 only</option><option value="Q2">Q2 only</option><option value="Q3">Q3 only</option><option value="Q4">Q4 only</option></select></div>
-          <div class="field"><label>Metric</label><select id="compareMetric"><option value="applications">Applications</option><option value="decisions">Decisions considered</option><option value="issued">Issued / Granted</option><option value="refused">Refused</option><option value="grantRate">Grant Rate</option><option value="refusalRate" selected>Refusal Rate</option></select></div>
+        <div class="grid">
+          <article class="card wide"><div class="card-title"><h2>Comparison chart</h2></div><div class="chart large" id="chartCompare"></div></article>
+          <article class="card wide"><div class="card-title"><h2>Comparison table</h2></div><div class="table-wrap" id="compareTable"></div></article>
         </div>
-        <datalist id="countryOptions"></datalist>
-        <div class="compare-slots" id="compareSlots"></div>
-        <div class="compare-actions">
-          <button class="button small soft" onclick="addCompareSlot()">+ Add country</button>
-          <button class="button small" onclick="renderCompare()">Apply compare</button>
-          <button class="button small soft" onclick="resetCompare()">Reset</button>
+      </section>
+
+      <section class="section" id="guide">
+        <div class="guide-grid">
+          <article class="card"><h2>Overall Study Visa</h2><p>Uses <b>Applied</b> and <b>Outcomes</b>. This includes all study visa subtypes, main applicants and dependants.</p></article>
+          <article class="card"><h2>Sponsored Study Only</h2><p>Uses <b>Sponsored Applied</b> and <b>Sponsored Outcomes</b>. If the workbook still uses the older sheet name <b>Sponsored study</b>, the site reads that as Sponsored Outcomes.</p></article>
+          <article class="card"><h2>Rates</h2><p><b>Grant Rate</b> = Issued / (Issued + Refused). <b>Refusal Rate</b> = Refused / (Issued + Refused).</p></article>
+          <article class="card"><h2>Interpretation note</h2><p>Applications and outcomes are period-level indicators, not matched applicant-level records. An application submitted in one quarter may receive a decision in another quarter.</p></article>
+          <article class="card wide-guide"><h2>Source</h2><p>Workbook: <span id="guideSource">UKVI Data 2020-2026 Q2.xlsx</span>. Latest period: <span id="guideLatest">-</span>. Last loaded: <span id="guideLoaded">-</span>.</p></article>
         </div>
-      </article>
-      <div class="portal-grid">
-        <article class="chart-card wide"><div class="card-title"><h2>Comparison chart</h2></div><div class="chart tall" id="chartCompare"></div></article>
-        <article class="chart-card wide"><div class="card-title"><h2>Comparison table</h2></div><div class="table-wrap" id="compareTable"></div></article>
-      </div>
-    </section>
-
-    <section class="section" data-section="signals">
-      <div class="section-heading"><span>Signals</span><h2>Applications vs outcomes</h2><p>These visuals show whether volume, decisions and refusal rates are moving together.</p></div>
-      <div class="portal-grid">
-        <article class="chart-card wide"><div class="card-title"><h2>Applications vs refusal rate by country</h2><p>Bubble size reflects decisions considered.</p></div><div class="chart tall" id="chartScatter"></div></article>
-        <article class="chart-card wide"><div class="card-title"><h2>Country movement score</h2><p>Directional indicator using application change, grant change and refusal-rate movement.</p></div><div class="chart ranking" id="chartMovement"></div></article>
-      </div>
-    </section>
-
-    <section class="section" data-section="guide">
-      <div class="section-heading"><span>Data Guide</span><h2>Definitions and interpretation notes</h2></div>
-      <div class="guide-grid">
-        <article class="guide-card"><h3>Applications</h3><p>Applications are summed from the <b>Sponsored Applied</b> sheet.</p></article>
-        <article class="guide-card"><h3>Outcomes</h3><p>Outcomes are summed from the <b>Sponsored study</b> sheet and include only issued/granted and refused decisions.</p></article>
-        <article class="guide-card"><h3>Rates</h3><p><b>Grant Rate</b> = Issued / (Issued + Refused). <b>Refusal Rate</b> = Refused / (Issued + Refused).</p></article>
-        <article class="guide-card"><h3>Important limitation</h3><p>Applications and outcomes are period-level indicators, not matched applicant-level records. An application submitted in one quarter may receive a decision in another quarter.</p></article>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+  </div>
 
   <script src="app.js"></script>
 </body>
