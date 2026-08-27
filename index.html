@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>UKVI Study Visa Reporting</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=20260827-floating-sidebar">
+  <link rel="stylesheet" href="style.css?v=20260827-tabler-redesign">
 </head>
 <body>
   <div class="loading" id="loading"><span></span>Loading</div>
@@ -17,29 +17,30 @@
       <div class="side-top">
         <button class="menu-btn" id="menuBtn" type="button" aria-label="Toggle navigation">☰</button>
       </div>
-      <div class="side-label">Report</div>
-      <button class="nav active" data-view="overview">Overview</button>
-      <button class="nav" data-view="applications">Applications</button>
-      <button class="nav" data-view="outcomes">Outcomes</button>
-      <button class="nav" data-view="grants">Grants</button>
-      <button class="nav" data-view="refusals">Refusals</button>
-      <button class="nav" data-view="countries">Countries</button>
-      <button class="nav" data-view="compare">Compare</button>
-      <button class="nav" data-view="guide">Data Guide</button>
+      <div class="side-label">Navigation</div>
+      <button class="nav active" data-view="overview"><span class="nav-icon">O</span><span class="nav-text">Overview</span></button>
+      <button class="nav" data-view="applications"><span class="nav-icon">A</span><span class="nav-text">Applications</span></button>
+      <button class="nav" data-view="outcomes"><span class="nav-icon">D</span><span class="nav-text">Outcomes</span></button>
+      <button class="nav" data-view="grants"><span class="nav-icon">G</span><span class="nav-text">Grants</span></button>
+      <button class="nav" data-view="refusals"><span class="nav-icon">R</span><span class="nav-text">Refusals</span></button>
+      <button class="nav" data-view="countries"><span class="nav-icon">C</span><span class="nav-text">Countries</span></button>
+      <button class="nav" data-view="compare"><span class="nav-icon">↔</span><span class="nav-text">Compare</span></button>
+      <button class="nav" data-view="guide"><span class="nav-icon">i</span><span class="nav-text">Data Guide</span></button>
     </aside>
 
     <main class="content">
-      <section class="control-panel">
-        <div class="heading-block">
-          <div>
-            <h1 id="reportTitle">UKVI Student Visa Statistics</h1>
-            <p id="reportSubtitle">Main applicant sponsored study applications and outcomes.</p>
-          </div>
-          <div class="scope-switch" aria-label="Dataset scope">
-            <button class="scope active" data-scope="sponsored">Sponsored Study Only</button>
-            <button class="scope" data-scope="overall">Overall Study Visa</button>
-          </div>
+      <section class="page-head">
+        <div>
+          <h1 id="reportTitle">UKVI Student Visa Statistics</h1>
+          <p id="reportSubtitle">Study visa applications, decisions, grants and refusals by nationality.</p>
         </div>
+        <div class="scope-switch" aria-label="Dataset scope">
+          <button class="scope active" data-scope="sponsored">Sponsored Study Only</button>
+          <button class="scope" data-scope="overall">Overall Study Visa</button>
+        </div>
+      </section>
+
+      <section class="filter-card">
         <div class="filters">
           <label><span>Year from</span><select id="yearFrom"></select></label>
           <label><span>Year to</span><select id="yearTo"></select></label>
@@ -48,90 +49,114 @@
           <button class="btn" id="applyBtn">Apply</button>
           <button class="btn secondary" id="resetBtn">Reset</button>
         </div>
-        <div class="filter-state" id="filterState">Current filters: All</div>
+        <div class="filter-state" id="filterState">Showing: Sponsored Study Only · All years · All quarters · All countries</div>
       </section>
 
       <section class="notice" id="notice" hidden></section>
 
       <section class="view active" id="overview">
-        <div class="summary" id="summaryLine">Waiting for data connection.</div>
-        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="section-title compact">
+          <div>
+            <h2>Overview</h2>
+            <p id="summaryLine">Waiting for data connection.</p>
+          </div>
+        </div>
+        <div class="kpi-grid six" id="overviewKpis"></div>
+        <div class="dashboard-grid overview-grid">
+          <article class="card span-8"><div class="card-head"><div><h3>Applications and decisions trend</h3><p>Applications compared with issued and refused decisions.</p></div></div><div class="chart large" id="chartAnnual"></div></article>
+          <article class="card span-4"><div class="card-head"><div><h3>Refusal rate trend</h3><p>Annual refused-outcome movement.</p></div></div><div class="chart large" id="chartRefusalRate"></div></article>
+        </div>
         <div class="mini-grid" id="miniGrid"></div>
         <div class="dashboard-grid">
-          <article class="card wide"><div class="card-head"><h2>Applications and decisions trend</h2><p>Applications compared with issued and refused decisions.</p></div><div class="chart large" id="chartAnnual"></div></article>
-          <article class="card"><div class="card-head"><h2>Refusal rate trend</h2><p>Annual movement in refused outcomes.</p></div><div class="chart" id="chartRefusalRate"></div></article>
-          <article class="card"><div class="card-head"><h2>Latest quarter movement</h2><p>Same quarter previous year comparison.</p></div><div class="chart" id="chartLatestSlope"></div></article>
+          <article class="card"><div class="card-head"><div><h3>Latest quarter movement</h3><p>Same quarter previous-year comparison.</p></div></div><div class="chart" id="chartLatestSlope"></div></article>
+          <article class="card"><div class="card-head"><div><h3>Outcome mix</h3><p>Issued / granted versus refused.</p></div></div><div class="chart" id="chartOutcomeMixOverview"></div></article>
         </div>
       </section>
 
       <section class="view" id="applications">
+        <div class="section-title"><div><h2>Applications</h2><p>Application volume by year, quarter and nationality.</p></div></div>
+        <div class="kpi-grid six" id="applicationsKpis"></div>
         <div class="dashboard-grid">
-          <article class="card wide"><div class="card-head"><h2>Applications by quarter</h2></div><div class="chart large" id="chartQuarterApps"></div></article>
-          <article class="card"><div class="card-head"><h2>Applications by year</h2></div><div class="chart" id="chartYearApps"></div></article>
-          <article class="card"><div class="card-head"><h2>Top countries by applications</h2></div><div class="chart ranking" id="chartTopApps"></div></article>
+          <article class="card wide"><div class="card-head"><div><h3>Applications by year</h3><p>Long-term demand trend.</p></div></div><div class="chart large" id="chartYearApps"></div></article>
+          <article class="card"><div class="card-head"><div><h3>Applications by quarter</h3><p>Quarter-level movement.</p></div></div><div class="chart" id="chartQuarterApps"></div></article>
+          <article class="card"><div class="card-head"><div><h3>Top countries by applications</h3><p>Highest application-volume nationalities.</p></div></div><div class="chart ranking" id="chartTopApps"></div></article>
         </div>
       </section>
 
       <section class="view" id="outcomes">
+        <div class="section-title"><div><h2>Outcomes</h2><p>Issued and refused decisions across the selected period.</p></div></div>
+        <div class="kpi-grid five" id="outcomesKpis"></div>
         <div class="dashboard-grid">
-          <article class="card"><div class="card-head"><h2>Issued and refused by year</h2></div><div class="chart" id="chartOutcomeYear"></div></article>
-          <article class="card"><div class="card-head"><h2>Outcome mix</h2></div><div class="chart" id="chartOutcomeMix"></div></article>
-          <article class="card wide"><div class="card-head"><h2>Quarterly issued vs refused</h2></div><div class="chart large" id="chartQuarterOutcomes"></div></article>
+          <article class="card"><div class="card-head"><div><h3>Issued vs refused by year</h3><p>Annual decision mix.</p></div></div><div class="chart" id="chartOutcomeYear"></div></article>
+          <article class="card"><div class="card-head"><div><h3>Outcome mix</h3><p>Total issued / granted and refused outcomes.</p></div></div><div class="chart" id="chartOutcomeMix"></div></article>
+          <article class="card wide"><div class="card-head"><div><h3>Quarterly issued vs refused</h3><p>Decision volume by quarter.</p></div></div><div class="chart large" id="chartQuarterOutcomes"></div></article>
         </div>
       </section>
 
       <section class="view" id="grants">
+        <div class="section-title"><div><h2>Grants</h2><p>Issued / granted outcomes and grant-rate performance.</p></div></div>
+        <div class="kpi-grid five" id="grantsKpis"></div>
         <div class="dashboard-grid">
-          <article class="card wide"><div class="card-head"><h2>Issued / granted trend</h2></div><div class="chart large" id="chartGrantTrend"></div></article>
-          <article class="card"><div class="card-head"><h2>Grant rate trend</h2></div><div class="chart" id="chartGrantRate"></div></article>
-          <article class="card"><div class="card-head"><h2>Top countries by grants</h2></div><div class="chart ranking" id="chartTopGrants"></div></article>
+          <article class="card wide"><div class="card-head"><div><h3>Issued / granted trend</h3><p>Successful outcome volume by year.</p></div></div><div class="chart large" id="chartGrantTrend"></div></article>
+          <article class="card"><div class="card-head"><div><h3>Grant rate trend</h3><p>Issued ÷ issued/refused decisions.</p></div></div><div class="chart" id="chartGrantRate"></div></article>
+          <article class="card"><div class="card-head"><div><h3>Top countries by grants</h3><p>Highest issued / granted volume.</p></div></div><div class="chart ranking" id="chartTopGrants"></div></article>
         </div>
       </section>
 
       <section class="view" id="refusals">
+        <div class="section-title"><div><h2>Refusals</h2><p>Refusal volume, refusal-rate movement and risk indicators.</p></div></div>
+        <div class="kpi-grid five" id="refusalsKpis"></div>
         <div class="dashboard-grid">
-          <article class="card wide"><div class="card-head"><h2>Refusal trend</h2></div><div class="chart large" id="chartRefusalTrend"></div></article>
-          <article class="card"><div class="card-head"><h2>Highest refusal rate countries</h2><p>Minimum decision base applied.</p></div><div class="chart ranking" id="chartHighRefusal"></div></article>
-          <article class="card"><div class="card-head"><h2>Refusal-rate increases</h2><p>Latest comparable period.</p></div><div class="chart ranking" id="chartRefusalIncrease"></div></article>
+          <article class="card wide"><div class="card-head"><div><h3>Refusal volume trend</h3><p>Refused outcomes by year.</p></div></div><div class="chart large" id="chartRefusalTrend"></div></article>
+          <article class="card"><div class="card-head"><div><h3>Highest refusal rate countries</h3><p>Minimum decision base applied.</p></div></div><div class="chart ranking" id="chartHighRefusal"></div></article>
+          <article class="card"><div class="card-head"><div><h3>Refusal-rate increases</h3><p>Latest comparable year movement.</p></div></div><div class="chart ranking" id="chartRefusalIncrease"></div></article>
         </div>
       </section>
 
       <section class="view" id="countries">
-        <article class="card wide"><div class="card-head split"><div><h2>Country summary</h2><p>Movement is shown as simple text and arrows.</p></div><button class="btn secondary" id="exportBtn">Export CSV</button></div><div class="table-wrap" id="countryTable"></div></article>
+        <div class="section-title"><div><h2>Countries</h2><p>Nationality-level application, outcome and movement summary.</p></div></div>
+        <article class="card wide">
+          <div class="card-head split"><div><h3>Country summary</h3><p>Search, review movement and export the current view.</p></div><button class="btn secondary" id="exportBtn">Export CSV</button></div>
+          <div class="table-tools"><input id="countrySearch" type="search" placeholder="Search nationality..."></div>
+          <div class="table-wrap" id="countryTable"></div>
+        </article>
       </section>
 
       <section class="view" id="compare">
+        <div class="section-title"><div><h2>Compare</h2><p>Compare up to five countries using the current filter period.</p></div></div>
         <article class="card wide">
-          <div class="card-head"><h2>Compare countries</h2><p>Choose up to five countries and one metric.</p></div>
           <div class="compare-row">
             <input class="compare-country" list="countryOptions" value="India" placeholder="Country 1">
             <input class="compare-country" list="countryOptions" value="Pakistan" placeholder="Country 2">
             <input class="compare-country" list="countryOptions" placeholder="Country 3">
+            <input class="compare-country" list="countryOptions" placeholder="Country 4">
+            <input class="compare-country" list="countryOptions" placeholder="Country 5">
             <select id="compareMetric"><option value="applications">Applications</option><option value="decisions">Decisions</option><option value="issued">Issued / Granted</option><option value="refused">Refused</option><option value="grantRate">Grant Rate</option><option value="refusalRate" selected>Refusal Rate</option></select>
             <button class="btn" id="compareBtn">Compare</button>
           </div>
           <datalist id="countryOptions"></datalist>
         </article>
         <div class="dashboard-grid">
-          <article class="card wide"><div class="card-head"><h2>Comparison chart</h2></div><div class="chart large" id="chartCompare"></div></article>
-          <article class="card wide"><div class="card-head"><h2>Comparison table</h2></div><div class="table-wrap" id="compareTable"></div></article>
+          <article class="card wide"><div class="card-head"><div><h3>Comparison chart</h3><p>Metric comparison for selected countries.</p></div></div><div class="chart large" id="chartCompare"></div></article>
+          <article class="card wide"><div class="card-head"><div><h3>Comparison table</h3><p>Applications, decisions and rates side by side.</p></div></div><div class="table-wrap" id="compareTable"></div></article>
         </div>
       </section>
 
       <section class="view" id="guide">
+        <div class="section-title"><div><h2>Data Guide</h2><p>Source, scope definitions and calculation notes.</p></div></div>
         <div class="guide-grid">
-          <article class="card wide"><h2>Data source</h2><p><a href="https://www.gov.uk/government/statistical-data-sets/immigration-system-statistics-data-table" target="_blank" rel="noopener">https://www.gov.uk/government/statistical-data-sets/immigration-system-statistics-data-table</a></p></article>
-          <article class="card"><h2>Overall Study Visa</h2><p>Uses <b>Applied</b> and <b>Outcomes</b>. This includes all study visa subtypes, main applicants and dependants.</p></article>
-          <article class="card"><h2>Sponsored Study Only</h2><p>Uses <b>Sponsored Applied</b> and <b>Sponsored Outcomes</b>. This is the main-applicant sponsored study view.</p></article>
-          <article class="card"><h2>Rates</h2><p><b>Grant Rate</b> = Issued / (Issued + Refused). <b>Refusal Rate</b> = Refused / (Issued + Refused).</p></article>
-          <article class="card"><h2>Interpretation note</h2><p>Applications and outcomes are period-level indicators, not matched applicant-level records.</p></article>
-          <article class="card"><h2>Connection status</h2><p id="debugInfo">Waiting for API.</p></article>
+          <article class="card wide"><h3>Data source</h3><p><a href="https://www.gov.uk/government/statistical-data-sets/immigration-system-statistics-data-table" target="_blank" rel="noopener">https://www.gov.uk/government/statistical-data-sets/immigration-system-statistics-data-table</a></p></article>
+          <article class="card"><h3>Overall Study Visa</h3><p>Uses <b>Applied</b> and <b>Outcomes</b>. This includes all study visa subtypes, main applicants and dependants.</p></article>
+          <article class="card"><h3>Sponsored Study Only</h3><p>Uses <b>Sponsored Applied</b> and <b>Sponsored Outcomes</b>. This is the main-applicant sponsored study view.</p></article>
+          <article class="card"><h3>Rates</h3><p><b>Grant Rate</b> = Issued / (Issued + Refused). <b>Refusal Rate</b> = Refused / (Issued + Refused).</p></article>
+          <article class="card"><h3>Interpretation note</h3><p>Applications and outcomes are period-level indicators, not matched applicant-level records.</p></article>
+          <article class="card"><h3>Update note</h3><p>New data can be added through the underlying data source without changing the dashboard layout.</p></article>
         </div>
       </section>
     </main>
   </div>
 
-  <script src="config.js?v=20260827-floating-sidebar"></script>
-  <script src="app.js?v=20260827-floating-sidebar"></script>
+  <script src="config.js?v=20260827-tabler-redesign"></script>
+  <script src="app.js?v=20260827-tabler-redesign"></script>
 </body>
 </html>
