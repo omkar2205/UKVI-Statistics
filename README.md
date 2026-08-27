@@ -1,37 +1,35 @@
-# UKVI Statistics Dashboard
+# UKVI Study Visa Reporting
 
-Static GitHub Pages version of the UKVI Sponsored Study Visa dashboard.
+Plain analytics-style reporting dashboard for UKVI study visa data.
+
+## Data source
+
+The GitHub Pages frontend no longer reads an Excel workbook from the repository. It is designed to read a JSON feed from Google Apps Script connected to the Google Sheet:
+
+- Google Sheet: `UKVI Data 2020-2026 Q2`
+- Spreadsheet ID: `18x1I2_PpHs7iIMDS_9J4ByUNRfOTUzHFvtkfdQgWLx0`
+- Sheets used:
+  - `Applied`
+  - `Outcomes`
+  - `Sponsored Applied`
+  - `Sponsored Outcomes`
 
 ## Files
 
-- `index.html` – dashboard front end
-- `UKVI Data 2020-2026 Q2.xlsx` – source Excel workbook
-- `data/dashboard-data.json` – optional preprocessed data placeholder
+- `index.html` - page structure
+- `style.css` - plain analytics/reporting layout
+- `app.js` - dashboard logic and charts
+- `config.js` - Apps Script Web App URL
+- `apps-script/Code.gs` - Google Apps Script backend
 
-## How it works
+## Apps Script setup
 
-The dashboard loads the Excel workbook directly from this repository and reads these two sheets:
+1. Open the Google Sheet.
+2. Go to **Extensions > Apps Script**.
+3. Replace the script code with `apps-script/Code.gs` from this repository.
+4. Deploy as a **Web app**.
+5. Set access to **Anyone**.
+6. Copy the `/exec` Web App URL.
+7. Paste that URL into `config.js` as `API_URL`.
 
-- `Sponsored Applied` for application volumes
-- `Sponsored study` for outcomes
-
-Outcome analysis includes only Issued/Granted and Refused decisions.
-
-## Publishing
-
-To publish through GitHub Pages:
-
-1. Open repository Settings
-2. Go to Pages
-3. Select Deploy from branch
-4. Select branch `main`
-5. Select folder `/root`
-6. Save
-
-The public dashboard link should become:
-
-`https://omkar2205.github.io/UKVI-Statistics/`
-
-## Updating data
-
-For future releases, upload the updated Excel workbook to the repository and update the file name in `index.html` if the workbook name changes.
+After this, the site will load data from Google Sheets through Apps Script.
