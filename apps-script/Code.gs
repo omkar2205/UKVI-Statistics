@@ -24,17 +24,19 @@ const COL = {
 
 function doGet(e) {
   const startedAt = Date.now();
+  const callback = e && e.parameter ? cleanCallback_(e.parameter.callback) : '';
+
   try {
     const payload = buildPayload();
     payload.buildMs = Date.now() - startedAt;
-    return jsonOutput(payload);
+    return jsonOutput(payload, callback);
   } catch (err) {
     return jsonOutput({
       status: 'error',
       message: err && err.message ? err.message : String(err),
       updatedAt: new Date().toISOString(),
       buildMs: Date.now() - startedAt
-    });
+    }, callback);
   }
 }
 
@@ -183,8 +185,21 @@ function sortPeriodNationality_(a, b) {
   return a.year - b.year || Number(a.quarter[1]) - Number(b.quarter[1]) || a.nationality.localeCompare(b.nationality);
 }
 
-function jsonOutput(payload) {
+function cleanCallback_(value) {
+  const callback = clean_(value);
+  return /^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback) ? callback : '';
+}
+
+function jsonOutput(payload, callback) {
+  const json = JSON.stringify(payload);
+
+  if (callback) {
+    return ContentService
+      .createTextOutput(callback + '(' + json + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
   return ContentService
-    .createTextOutput(JSON.stringify(payload))
+    .createTextOutput(json)
     .setMimeType(ContentService.MimeType.JSON);
 }
