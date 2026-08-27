@@ -5,22 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>UKVI Study Visa Reporting</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=20260827-polished">
+  <link rel="stylesheet" href="style.css?v=20260827-google-clean">
 </head>
 <body>
-  <div class="loading" id="loading"><span></span>Connecting to Google Sheets...</div>
-
-  <header class="topbar">
-    <button class="menu-btn" id="menuBtn" type="button" aria-label="Toggle navigation">☰</button>
-    <div class="product-title">
-      <strong>UKVI Study Visa Reporting</strong>
-      <small id="connectionLabel">Connected to Google Sheets</small>
-    </div>
-    <div class="top-meta" id="topMeta">UKVI Student Visa Statistics</div>
-  </header>
+  <div class="loading" id="loading"><span></span>Loading</div>
+  <span id="connectionLabel" hidden></span>
+  <span id="topMeta" hidden></span>
 
   <div class="layout" id="layout">
     <aside class="sidebar" id="sidebar">
+      <div class="side-top">
+        <button class="menu-btn" id="menuBtn" type="button" aria-label="Toggle navigation">☰</button>
+      </div>
       <div class="side-label">Report</div>
       <button class="nav active" data-view="overview">Overview</button>
       <button class="nav" data-view="applications">Applications</button>
@@ -124,7 +120,7 @@
 
       <section class="view" id="guide">
         <div class="guide-grid">
-          <article class="card"><h2>Data source</h2><p>The frontend reads a JSON feed from a Google Apps Script web app connected to the Google Sheet.</p></article>
+          <article class="card wide"><h2>Data source</h2><p><a href="https://www.gov.uk/government/statistical-data-sets/immigration-system-statistics-data-table" target="_blank" rel="noopener">https://www.gov.uk/government/statistical-data-sets/immigration-system-statistics-data-table</a></p></article>
           <article class="card"><h2>Overall Study Visa</h2><p>Uses <b>Applied</b> and <b>Outcomes</b>. This includes all study visa subtypes, main applicants and dependants.</p></article>
           <article class="card"><h2>Sponsored Study Only</h2><p>Uses <b>Sponsored Applied</b> and <b>Sponsored Outcomes</b>. This is the main-applicant sponsored study view.</p></article>
           <article class="card"><h2>Rates</h2><p><b>Grant Rate</b> = Issued / (Issued + Refused). <b>Refusal Rate</b> = Refused / (Issued + Refused).</p></article>
@@ -135,8 +131,7 @@
     </main>
   </div>
 
-  <script src="config.js?v=20260827-polished"></script>
-  <script src="app.js?v=20260827-sheets-api"></script>
-  <script src="polish.js?v=20260827-polished"></script>
+  <script src="config.js?v=20260827-google-clean"></script>
+  <script src="app.js?v=20260827-google-clean"></script>
 </body>
 </html>
