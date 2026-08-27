@@ -5,7 +5,6 @@ const C={a:'#2f80c0',d:'#64748b',i:'#15836f',r:'#c0392b',w:'#a16207',g:'#e5eaf0'
 let wb,scope='sponsored',A=[],O=[],Y=[],N=[],SEL=[],V={},CH={};
 document.addEventListener('click',e=>{if(countryBox&&!countryBox.contains(e.target))closeCountryMenu()});
 addEventListener('resize',()=>Object.values(CH).forEach(c=>c&&c.resize()));
-load();
 async function load(){try{let r=await fetch(FILE,{cache:'force-cache'});if(!r.ok)throw Error('Could not load workbook');wb=XLSX.read(await r.arrayBuffer(),{type:'array'});loadScope(scope);applyFilters();set('guideLoaded',new Date().toLocaleString('en-GB'))}catch(e){err(e.message||e)}finally{loader.style.display='none'}}
 function loadScope(s){scope=s;let c=CFG[s];A=readA(c.app);O=readO(c.out);Y=u(A.map(x=>x.y).concat(O.map(x=>x.y))).sort((a,b)=>a-b);N=u(A.map(x=>x.n).concat(O.map(x=>x.n))).sort((a,b)=>a.localeCompare(b));set('reportTitle',c.label);set('topScope',c.label);set('reportSubtitle',c.sub);document.querySelectorAll('.scope-btn').forEach(b=>b.classList.toggle('active',b.dataset.scope==s));fill(yearFrom,Y,Y[0]);fill(yearTo,Y,Y.at(-1));fill(compareYear,Y,Y.at(-1));countryOptions.innerHTML=N.map(n=>`<option value="${e(n)}"></option>`).join('');renderCountryMenu();set('guideLatest',lastPeriod()||'-');renderCompareSlots()}
 function setScope(s){SEL=[];loadScope(s);applyFilters()}
