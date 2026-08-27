@@ -1,10 +1,10 @@
 const CONFIG = window.UKVI_CONFIG || {};
 const API_URL = (CONFIG.API_URL || '').trim();
 const BUILD = CONFIG.BUILD || 'local';
-const COLORS = { blue:'#2f80c0', green:'#15836f', red:'#c0392b', amber:'#a16207', grey:'#64748b', grid:'#e5eaf0' };
+const COLORS = { blue:'#1a73e8', green:'#188038', red:'#d93025', amber:'#f9ab00', grey:'#70757a', grid:'#edf0f3' };
 const SCOPES = {
-  sponsored: { title:'Sponsored Study Only', sub:'Main applicant sponsored study applications and outcomes.' },
-  overall: { title:'Overall Study Visa', sub:'All study visa subtypes, including main applicants and dependants.' }
+  sponsored: { label:'Sponsored Study Only', sub:'Main applicant sponsored study applications and outcomes.' },
+  overall: { label:'Overall Study Visa', sub:'All study visa subtypes, including main applicants and dependants.' }
 };
 let rawData = null;
 let scope = 'sponsored';
@@ -12,6 +12,7 @@ let state = { apps:[], outs:[], filteredApps:[], filteredOuts:[], years:[], coun
 let charts = {};
 
 const $ = id => document.getElementById(id);
+const setText = (id, value) => { const el = $(id); if(el) el.textContent = value; };
 const fmt = v => Math.round(Number(v)||0).toLocaleString('en-GB');
 const rd = v => Math.round((Number(v)||0)*10)/10;
 const pct = v => rd((Number(v)||0)*100).toFixed(1)+'%';
@@ -24,17 +25,17 @@ const uniq = arr => [...new Set(arr.filter(v => v !== '' && v != null))];
 init();
 
 function init(){
-  $('menuBtn').addEventListener('click', () => {
+  $('menuBtn')?.addEventListener('click', () => {
     $('layout').classList.toggle('collapsed');
     $('layout').classList.toggle('sidebar-open');
     setTimeout(resizeCharts, 220);
   });
   document.querySelectorAll('.nav').forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.view)));
   document.querySelectorAll('.scope').forEach(btn => btn.addEventListener('click', () => setScope(btn.dataset.scope)));
-  $('applyBtn').addEventListener('click', applyFilters);
-  $('resetBtn').addEventListener('click', resetFilters);
-  $('exportBtn').addEventListener('click', exportCsv);
-  $('compareBtn').addEventListener('click', renderCompare);
+  $('applyBtn')?.addEventListener('click', applyFilters);
+  $('resetBtn')?.addEventListener('click', resetFilters);
+  $('exportBtn')?.addEventListener('click', exportCsv);
+  $('compareBtn')?.addEventListener('click', renderCompare);
   window.addEventListener('resize', resizeCharts);
   loadData();
 }
@@ -46,34 +47,36 @@ async function loadData(){
     return;
   }
   try{
-    setNotice('Connecting to Google Apps Script...', '');
     const url = API_URL + (API_URL.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(BUILD) + '&t=' + Date.now();
     const res = await fetch(url, { cache:'no-store' });
     if(!res.ok) throw new Error('Apps Script returned HTTP '+res.status);
     const data = await res.json();
     if(data.status && data.status !== 'ok') throw new Error(data.message || 'Apps Script returned an error');
     rawData = data;
-    $('connectionLabel').textContent = 'Connected to Google Sheets';
-    $('topMeta').textContent = data.updatedAt ? 'Loaded '+new Date(data.updatedAt).toLocaleString('en-GB') : 'Connected';
-    $('debugInfo').textContent = connectionSummary(data);
-    setNotice('Google Sheets connection is active. Data is now coming from Apps Script, not the Excel file in GitHub.', 'success');
+    setText('connectionLabel','Connected to Google Sheets');
+    setText('topMeta','UKVI Student Visa Statistics');
+    setText('debugInfo', connectionSummary(data));
+    const notice = $('notice');
+    if(notice){ notice.hidden = true; notice.className = 'notice'; notice.textContent = ''; }
     setScope(scope);
   }catch(err){
     setNotice('Data connection failed: '+(err.message || err), 'error');
-    $('debugInfo').textContent = 'Connection failed: '+(err.message || err);
+    setText('debugInfo','Connection failed: '+(err.message || err));
   }finally{
     $('loading').style.display='none';
   }
 }
 
 function setupNotice(){
-  setNotice('Apps Script is not connected yet. The design is ready, but config.js needs the deployed Apps Script Web App URL. Deploy apps-script/Code.gs as a web app, then paste the /exec URL into config.js.', 'error');
-  $('summaryLine').textContent = 'Waiting for Apps Script Web App URL.';
-  $('debugInfo').innerHTML = 'API_URL is empty in config.js. Use the backend code in apps-script/Code.gs, deploy it, then update config.js.';
+  setNotice('Apps Script is not connected yet. The dashboard needs the deployed Apps Script Web App URL in config.js.', 'error');
+  setText('summaryLine','Waiting for Apps Script Web App URL.');
+  const debug = $('debugInfo');
+  if(debug) debug.innerHTML = 'API_URL is empty in config.js. Use the backend code in apps-script/Code.gs, deploy it, then update config.js.';
 }
 
 function setNotice(text, kind){
   const n = $('notice');
+  if(!n) return;
   n.hidden = false;
   n.className = 'notice' + (kind ? ' '+kind : '');
   n.textContent = text;
@@ -101,8 +104,8 @@ function showView(id){
 function setScope(next){
   scope = next;
   document.querySelectorAll('.scope').forEach(b => b.classList.toggle('active', b.dataset.scope === scope));
-  $('reportTitle').textContent = SCOPES[scope].title;
-  $('reportSubtitle').textContent = SCOPES[scope].sub;
+  setText('reportTitle','UKVI Student Visa Statistics');
+  setText('reportSubtitle', SCOPES[scope].sub);
   if(!rawData) return;
   const ds = rawData.datasets?.[scope];
   if(!ds){ setNotice('No dataset returned for '+scope+'.', 'error'); return; }
@@ -125,6 +128,7 @@ function populateFilters(){
 }
 
 function fillSelect(el, values, selected){
+  if(!el) return;
   el.innerHTML = values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
   el.value = selected;
 }
@@ -143,7 +147,7 @@ function applyFilters(){
   const yf = +$('yearFrom').value, yt = +$('yearTo').value, q = $('quarter').value, c = $('country').value;
   state.filteredApps = state.apps.filter(r => r.year>=yf && r.year<=yt && (q==='All'||r.quarter===q) && (c==='All'||r.nationality===c));
   state.filteredOuts = state.outs.filter(r => r.year>=yf && r.year<=yt && (q==='All'||r.quarter===q) && (c==='All'||r.nationality===c));
-  $('filterState').textContent = 'Current filters: ' + [yf+' to '+yt, q==='All'?'':q, c==='All'?'All countries':c].filter(Boolean).join(' | ');
+  setText('filterState','Current filters: ' + [yf+' to '+yt, q==='All'?'':q, c==='All'?'All countries':c].filter(Boolean).join(' | '));
   buildState();
   renderAll();
 }
@@ -195,7 +199,7 @@ function movement(country){
 
 function renderAll(){
   const total = metrics(state.filteredApps, state.filteredOuts);
-  $('summaryLine').textContent = `${SCOPES[scope].title}: ${fmt(total.applications)} applications, ${fmt(total.decisions)} decisions considered, ${pct(total.grantRate)} grant rate and ${pct(total.refusalRate)} refusal rate.`;
+  setText('summaryLine', `${SCOPES[scope].label}: ${fmt(total.applications)} applications, ${fmt(total.decisions)} decisions considered, ${pct(total.grantRate)} grant rate and ${pct(total.refusalRate)} refusal rate.`);
   renderKpis(total);
   renderMini(total);
   renderCharts(total);
