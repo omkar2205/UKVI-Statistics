@@ -5,7 +5,8 @@ const XLSX = require('xlsx');
 const ROOT = path.resolve(__dirname, '..');
 const INPUT = path.join(ROOT, 'UKVI Data 2020-2026 Q2.xlsx');
 const OUTPUT_DIR = path.join(ROOT, 'data');
-const OUTPUT = path.join(OUTPUT_DIR, 'ukvi-data.json');
+const JSON_OUTPUT = path.join(OUTPUT_DIR, 'ukvi-data.json');
+const JS_OUTPUT = path.join(OUTPUT_DIR, 'ukvi-data.js');
 
 const clean = value => String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
 const number = value => {
@@ -82,7 +83,7 @@ const payload = {
   status: 'ok',
   updatedAt: new Date().toISOString(),
   source: {
-    type: 'github-json',
+    type: 'github-bundled-data',
     workbook: path.basename(INPUT),
     sheets: workbook.SheetNames
   },
@@ -98,9 +99,13 @@ const payload = {
   }
 };
 
+const json = JSON.stringify(payload);
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-fs.writeFileSync(OUTPUT, JSON.stringify(payload));
-console.log(`Wrote ${OUTPUT}`);
+fs.writeFileSync(JSON_OUTPUT, json);
+fs.writeFileSync(JS_OUTPUT, 'window.UKVI_DATA=' + json + ';\n');
+
+console.log(`Wrote ${JSON_OUTPUT}`);
+console.log(`Wrote ${JS_OUTPUT}`);
 console.log(`Overall applications: ${payload.datasets.overall.applications.length}`);
 console.log(`Overall outcomes: ${payload.datasets.overall.outcomes.length}`);
 console.log(`Sponsored applications: ${payload.datasets.sponsored.applications.length}`);
