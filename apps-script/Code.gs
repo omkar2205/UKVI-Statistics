@@ -10,32 +10,57 @@ const SHEETS = {
   }
 };
 
+// UKVI source layout used by all four tabs:
+// A = Year, B = Quarter, C = Nationality, I = Applications / Case outcome, J = Decisions.
+// Reading only the columns the dashboard needs is much faster than reading all 26 columns.
+const COL = {
+  YEAR: 1,
+  QUARTER: 2,
+  NATIONALITY: 3,
+  APPLICATIONS: 9,
+  OUTCOME: 9,
+  DECISIONS: 10
+};
+
 function doGet(e) {
+  const startedAt = Date.now();
   try {
     const payload = buildPayload();
+    payload.buildMs = Date.now() - startedAt;
     return jsonOutput(payload);
   } catch (err) {
     return jsonOutput({
       status: 'error',
       message: err && err.message ? err.message : String(err),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      buildMs: Date.now() - startedAt
     });
   }
 }
 
 function buildPayload() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const configuredNames = [
+    SHEETS.overall.applications,
+    SHEETS.overall.outcomes,
+    SHEETS.sponsored.applications,
+    SHEETS.sponsored.outcomes
+  ];
+
   return {
     status: 'ok',
     updatedAt: new Date().toISOString(),
     source: {
       spreadsheetId: SPREADSHEET_ID,
       title: ss.getName(),
-      sheets: ss.getSheets().map(sheet => ({
-        name: sheet.getName(),
-        rows: Math.max(0, sheet.getLastRow() - 1),
-        columns: sheet.getLastColumn()
-      }))
+      sheets: configuredNames.map(name => {
+        const sheet = getSheet_(ss, name);
+        return {
+          name: sheet.getName(),
+          rows: dataRowCount_(sheet),
+          columns: sheet.getLastColumn()
+        };
+      })
     },
     datasets: {
       overall: {
@@ -52,36 +77,50 @@ function buildPayload() {
 
 function readApplications_(ss, sheetName) {
   const sheet = getSheet_(ss, sheetName);
-  const rows = readRows_(sheet);
+  const bounds = dataBounds_(sheet);
+  if (!bounds.numRows) return [];
+
+  const abc = sheet.getRange(bounds.startRow, COL.YEAR, bounds.numRows, 3).getValues();
+  const applications = sheet.getRange(bounds.startRow, COL.APPLICATIONS, bounds.numRows, 1).getValues();
   const map = {};
-  rows.forEach(row => {
-    const year = normaliseYear_(row.Year, row.Quarter);
-    const quarter = normaliseQuarter_(row.Quarter);
-    const nationality = clean_(row.Nationality);
-    const applications = number_(row.Applications);
-    if (!year || !quarter || !nationality || !applications) return;
+
+  for (let i = 0; i < bounds.numRows; i++) {
+    const year = normaliseYear_(abc[i][0], abc[i][1]);
+    const quarter = normaliseQuarter_(abc[i][1]);
+    const nationality = clean_(abc[i][2]);
+    const value = number_(applications[i][0]);
+    if (!year || !quarter || !nationality || !value) continue;
+
     const key = [year, quarter, nationality].join('|');
     if (!map[key]) map[key] = { year, quarter, nationality, applications: 0 };
-    map[key].applications += applications;
-  });
+    map[key].applications += value;
+  }
+
   return Object.keys(map).map(key => map[key]).sort(sortPeriodNationality_);
 }
 
 function readOutcomes_(ss, sheetName) {
   const sheet = getSheet_(ss, sheetName);
-  const rows = readRows_(sheet);
+  const bounds = dataBounds_(sheet);
+  if (!bounds.numRows) return [];
+
+  const abc = sheet.getRange(bounds.startRow, COL.YEAR, bounds.numRows, 3).getValues();
+  const outcomeDecision = sheet.getRange(bounds.startRow, COL.OUTCOME, bounds.numRows, 2).getValues();
   const map = {};
-  rows.forEach(row => {
-    const year = normaliseYear_(row.Year, row.Quarter);
-    const quarter = normaliseQuarter_(row.Quarter);
-    const nationality = clean_(row.Nationality);
-    const outcome = normaliseOutcome_(row['Case outcome'] || row.Outcome);
-    const decisions = number_(row.Decisions);
-    if (!year || !quarter || !nationality || !outcome || !decisions) return;
+
+  for (let i = 0; i < bounds.numRows; i++) {
+    const year = normaliseYear_(abc[i][0], abc[i][1]);
+    const quarter = normaliseQuarter_(abc[i][1]);
+    const nationality = clean_(abc[i][2]);
+    const outcome = normaliseOutcome_(outcomeDecision[i][0]);
+    const decisions = number_(outcomeDecision[i][1]);
+    if (!year || !quarter || !nationality || !outcome || !decisions) continue;
+
     const key = [year, quarter, nationality, outcome].join('|');
     if (!map[key]) map[key] = { year, quarter, nationality, outcome, decisions: 0 };
     map[key].decisions += decisions;
-  });
+  }
+
   return Object.keys(map).map(key => map[key]).sort(sortPeriodNationality_);
 }
 
@@ -93,17 +132,22 @@ function getSheet_(ss, sheetName) {
   return sheet;
 }
 
-function readRows_(sheet) {
+function dataBounds_(sheet) {
   const lastRow = sheet.getLastRow();
-  const lastCol = sheet.getLastColumn();
-  if (lastRow < 2 || lastCol < 1) return [];
-  const values = sheet.getRange(1, 1, lastRow, lastCol).getValues();
-  const headers = values.shift().map(h => clean_(h));
-  return values.map(valuesRow => {
-    const row = {};
-    headers.forEach((header, index) => row[header] = valuesRow[index]);
-    return row;
-  });
+  if (lastRow < 1) return { startRow: 1, numRows: 0 };
+
+  // Three tabs contain headers, while the current overall Outcomes tab starts directly with data.
+  // Detect the header rather than assuming row 1 is always a header.
+  const first = sheet.getRange(1, 1, 1, Math.min(10, sheet.getLastColumn())).getDisplayValues()[0];
+  const hasHeader = clean_(first[0]).toLowerCase() === 'year' &&
+                    clean_(first[1]).toLowerCase() === 'quarter' &&
+                    clean_(first[2]).toLowerCase() === 'nationality';
+  const startRow = hasHeader ? 2 : 1;
+  return { startRow, numRows: Math.max(0, lastRow - startRow + 1) };
+}
+
+function dataRowCount_(sheet) {
+  return dataBounds_(sheet).numRows;
 }
 
 function normaliseOutcome_(value) {
