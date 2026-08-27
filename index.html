@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="style.css?v=20260827-tabler-redesign">
 </head>
 <body>
-  <div class="loading" id="loading"><span></span>Loading</div>
   <span id="connectionLabel" hidden></span>
   <span id="topMeta" hidden></span>
 
@@ -58,7 +57,7 @@
         <div class="section-title compact">
           <div>
             <h2>Overview</h2>
-            <p id="summaryLine">Waiting for data connection.</p>
+            <p id="summaryLine">Loading data...</p>
           </div>
         </div>
         <div class="kpi-grid six" id="overviewKpis"></div>
@@ -156,7 +155,7 @@
     </main>
   </div>
 
-  <script src="config.js?v=20260827-loading-fix"></script>
-  <script src="app.js?v=20260827-loading-fix"></script>
+  <script src="config.js?v=20260827-no-blocking-loader"></script>
+  <script src="app.js?v=20260827-no-blocking-loader"></script>
 </body>
 </html>
