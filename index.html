@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UKVI Study Visa Insights Portal</title>
+  <title>UKVI Study Visa Insights</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="loader" id="loader"><div><span class="spinner"></span>Preparing the UKVI insights portal...</div></div>
+  <div class="loader" id="loader"><div><span class="spinner"></span>Loading UKVI data...</div></div>
 
   <header class="portal-top">
     <div class="top-inner">
       <a class="brand" href="#home" onclick="showSection('home')">
         <span class="brand-mark">UK</span>
-        <span><b>UKVI Study Visa</b><small>Insights Portal</small></span>
+        <span><b>UKVI Study Visa</b><small>Insights</small></span>
       </a>
       <nav class="top-nav" aria-label="Portal sections">
         <button class="nav-pill active" data-section="home" onclick="showSection('home')">Briefing</button>
@@ -31,19 +31,19 @@
   <main class="portal-shell">
     <section class="hero" id="home">
       <div class="hero-main">
-        <div class="eyebrow">Q2 2026 public briefing</div>
-        <h1>Sponsored study visa trends, country movement and outcome signals in one readable portal.</h1>
-        <p class="lead">This view is designed for a general audience first: start with the story, then explore the charts, countries and data definitions behind it.</p>
+        <div class="eyebrow">Briefing</div>
+        <h1>Sponsored study visa trends and outcome signals</h1>
+        <p class="lead">Explore application volumes, visa outcomes, country movement and the latest Q2 2026 signals.</p>
         <div class="meta-row">
-          <span><b>Source workbook</b> UKVI Data 2020-2026 Q2.xlsx</span>
-          <span><b>Latest period</b> <span id="latestPeriod">-</span></span>
+          <span><b>Source</b> UKVI Data 2020-2026 Q2.xlsx</span>
+          <span><b>Latest</b> <span id="latestPeriod">-</span></span>
           <span><b>Loaded</b> <span id="loadedAt">-</span></span>
         </div>
       </div>
       <aside class="hero-card">
-        <span>Selected refusal rate</span>
+        <span>Refusal rate</span>
         <strong id="selectedRefusalRate">-</strong>
-        <small id="selectedScope">All selected records</small>
+        <small id="selectedScope">Current selection</small>
       </aside>
     </section>
 
@@ -78,9 +78,9 @@
     <section class="section active" data-section="home">
       <div class="portal-grid intro-grid">
         <article class="newsletter-card">
-          <div class="section-label">The briefing</div>
+          <div class="section-label">Briefing</div>
           <h2 id="briefTitle">Loading Q2 study visa briefing...</h2>
-          <p id="briefIntro">The portal is reading the workbook and preparing the latest view.</p>
+          <p id="briefIntro">Reading the workbook and preparing the latest view.</p>
           <div class="brief-list" id="briefBullets"></div>
         </article>
         <aside class="release-card">
@@ -101,7 +101,7 @@
     </section>
 
     <section class="section" data-section="trends">
-      <div class="section-heading"><span>Explore trends</span><h2>Applications and outcome movement over time</h2><p>Use these charts to understand volume, success and refusal patterns across years and quarters.</p></div>
+      <div class="section-heading"><span>Trends</span><h2>Applications and outcome movement over time</h2><p>Use these charts to understand volume, success and refusal patterns across years and quarters.</p></div>
       <div class="portal-grid">
         <article class="chart-card wide"><div class="card-title"><h2>Applications by quarter</h2><p>Quarter-level application volume.</p></div><div class="chart tall" id="chartQuarterApplications"></div></article>
         <article class="chart-card"><div class="card-title"><h2>Issued and refused by year</h2></div><div class="chart" id="chartOutcomeYear"></div></article>
@@ -111,7 +111,7 @@
     </section>
 
     <section class="section" data-section="countries">
-      <div class="section-heading"><span>Country lens</span><h2>Country-level overview and public-friendly context</h2><p>Select one country in the filter for a profile view, or leave all countries selected for rankings.</p></div>
+      <div class="section-heading"><span>Countries</span><h2>Country-level overview</h2><p>Select one country in the filter for a profile view, or leave all countries selected for rankings.</p></div>
       <div class="country-profile" id="countryProfile"></div>
       <div class="portal-grid">
         <article class="chart-card"><div class="card-title"><h2>Highest refusal rate countries</h2><p>Minimum decision base applied.</p></div><div class="chart ranking" id="chartHighRefusal"></div></article>
@@ -121,7 +121,7 @@
     </section>
 
     <section class="section" data-section="compare">
-      <div class="section-heading"><span>Compare countries</span><h2>Build a simple country comparison</h2><p>Choose up to five countries and a metric to compare selected-period values or longer trends.</p></div>
+      <div class="section-heading"><span>Compare</span><h2>Country comparison</h2><p>Choose up to five countries and a metric to compare selected-period values or longer trends.</p></div>
       <article class="compare-panel">
         <div class="compare-controls">
           <div class="field"><label>Mode</label><select id="compareMode" onchange="toggleCompareMode()"><option value="trend">Trend over time</option><option value="period">Selected period</option></select></div>
@@ -146,15 +146,15 @@
     </section>
 
     <section class="section" data-section="signals">
-      <div class="section-heading"><span>Applications vs outcomes</span><h2>Directional signals, not applicant-level conversion</h2><p>These visuals help a wider audience understand whether volume, decisions and refusal rates are moving together.</p></div>
+      <div class="section-heading"><span>Signals</span><h2>Applications vs outcomes</h2><p>These visuals show whether volume, decisions and refusal rates are moving together.</p></div>
       <div class="portal-grid">
-        <article class="chart-card wide"><div class="card-title"><h2>Applications vs refusal rate by country</h2><p>Bubble size reflects decisions considered. Use this to spot high-volume and high-refusal areas quickly.</p></div><div class="chart tall" id="chartScatter"></div></article>
+        <article class="chart-card wide"><div class="card-title"><h2>Applications vs refusal rate by country</h2><p>Bubble size reflects decisions considered.</p></div><div class="chart tall" id="chartScatter"></div></article>
         <article class="chart-card wide"><div class="card-title"><h2>Country movement score</h2><p>Directional indicator using application change, grant change and refusal-rate movement.</p></div><div class="chart ranking" id="chartMovement"></div></article>
       </div>
     </section>
 
     <section class="section" data-section="guide">
-      <div class="section-heading"><span>How to read this portal</span><h2>Data definitions and interpretation notes</h2></div>
+      <div class="section-heading"><span>Data Guide</span><h2>Definitions and interpretation notes</h2></div>
       <div class="guide-grid">
         <article class="guide-card"><h3>Applications</h3><p>Applications are summed from the <b>Sponsored Applied</b> sheet.</p></article>
         <article class="guide-card"><h3>Outcomes</h3><p>Outcomes are summed from the <b>Sponsored study</b> sheet and include only issued/granted and refused decisions.</p></article>
