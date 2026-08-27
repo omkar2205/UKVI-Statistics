@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>UKVI Study Visa Reporting</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="style.css?v=20260827-tabler-redesign">
 </head>
 <body>
@@ -149,13 +150,13 @@
           <article class="card"><h3>Sponsored Study Only</h3><p>Uses <b>Sponsored Applied</b> and <b>Sponsored Outcomes</b>. This is the main-applicant sponsored study view.</p></article>
           <article class="card"><h3>Rates</h3><p><b>Grant Rate</b> = Issued / (Issued + Refused). <b>Refusal Rate</b> = Refused / (Issued + Refused).</p></article>
           <article class="card"><h3>Interpretation note</h3><p>Applications and outcomes are period-level indicators, not matched applicant-level records.</p></article>
-          <article class="card"><h3>Update note</h3><p>New data can be added through the underlying data source without changing the dashboard layout.</p></article>
+          <article class="card"><h3>Update note</h3><p>The dashboard reads the Excel workbook stored with this GitHub Pages site.</p></article>
         </div>
       </section>
     </main>
   </div>
 
-  <script src="config.js?v=20260827-data-fix-v2"></script>
-  <script src="app.js?v=20260827-data-fix-v2"></script>
+  <script src="config.js?v=20260827-github-excel"></script>
+  <script src="app.js?v=20260827-github-excel"></script>
 </body>
 </html>
